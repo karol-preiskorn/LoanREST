@@ -1,14 +1,12 @@
 package pl.ultimasolution.loan.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.tomcat.util.json.ParseException;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,12 +24,10 @@ import java.util.Objects;
 @Entity
 @Table(name = "loans")
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"CreatedAt", "UpdatedAt"},
-        allowGetters = true)
 public class Loans implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final long MAX_LOAN = 100000;
+    private static final long MAX_LOAN = 1000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,18 +35,20 @@ public class Loans implements Serializable {
 
     @Column
     @Size(max = 20, min = 3)
-    @NotEmpty(message = "Please enter name of loan")
+    @NotEmpty(message = "Please enter correct name of loan")
     private String LoanName;
 
     @Column
-    @NotNull(message = "Please enter amount of loan")
-    private Number Amount;
+    @NotNull(message = "Please enter correct amount of loan")
+    @Min(0)
+    @Max(MAX_LOAN)
+    private long Amount;
 
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private Date TermAt;
 
-    @Column(nullable = true)
+    @Column
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date UpdatedAt;
@@ -66,7 +64,11 @@ public class Loans implements Serializable {
     @Column
     private boolean ProlongedTerm;
 
-    protected Loans() {
+    @Column
+    private String HistoryLog;
+
+
+    public Loans() {
     }
 
     public Loans(String LoanName, Long amount, String ip) {
@@ -85,15 +87,27 @@ public class Loans implements Serializable {
         this.setTermAt(term); // loan for month
     }
 
-    private Number getAmount() {
+    public String getHistoryLog() throws ParseException {
+        return this.HistoryLog;
+    }
+
+    public void setHistoryLog(String historyLog) {
+        this.HistoryLog = historyLog;
+    }
+
+    public Long getId() {
+        return Id;
+    }
+
+    public long getAmount() {
         return this.Amount;
     }
 
-    private void setAmount(Long amount) {
+    public void setAmount(Long amount) {
         this.Amount = amount;
     }
 
-    private void setTermAt() {
+    public void setTermAt() {
         java.util.Date now = new Date();
         Calendar myCal = Calendar.getInstance();
         myCal.setTime(now);
@@ -101,8 +115,8 @@ public class Loans implements Serializable {
         this.TermAt = myCal.getTime();
     }
 
-    private void setUpdateAt(Date date) {
-        this.UpdatedAt = date;
+    public void setUpdateAt() {
+        this.UpdatedAt = new Date();
     }
 
     public Long getLoanId() {
@@ -113,7 +127,7 @@ public class Loans implements Serializable {
         return this.LoanName;
     }
 
-    private void setLoanName(String loanName) {
+    public void setLoanName(String loanName) {
         this.LoanName = loanName;
     }
 
@@ -121,7 +135,7 @@ public class Loans implements Serializable {
         return this.Ip;
     }
 
-    private void setIp(String ip) {
+    public void setIp(String ip) {
         this.Ip = ip;
     }
 
@@ -129,7 +143,7 @@ public class Loans implements Serializable {
         return this.CreatedAt;
     }
 
-    private void setCreatedAt(Date date) {
+    public void setCreatedAt(Date date) {
         this.CreatedAt = date;
     }
 
@@ -154,7 +168,7 @@ public class Loans implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Loans loans = (Loans) o;
-        return Id == loans.Id &&
+        return Id.equals(loans.Id) &&
                 Amount == loans.Amount &&
                 ProlongedTerm == loans.ProlongedTerm &&
                 LoanName.equals(loans.LoanName) &&
@@ -167,5 +181,19 @@ public class Loans implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(Id, LoanName, Amount, TermAt, UpdatedAt, CreatedAt, Ip, ProlongedTerm);
+    }
+
+    public String toString() {
+        return "Loans(Id: " + this.Id + ", LoanName:" + this.LoanName + ", Amount: " + this.Amount + ", ProlongedTerm:" + this.ProlongedTerm +
+                ", TermAt:" + this.TermAt + ", UpdatedAt:" + this.UpdatedAt +
+                ", CreatedAt:" + this.CreatedAt + ", Ip:" + this.Ip + ")";
+    }
+
+    public Date getUpdateAt() {
+        return UpdatedAt;
+    }
+
+    public void setUpdateAt(Date date) {
+        this.UpdatedAt = date;
     }
 }
