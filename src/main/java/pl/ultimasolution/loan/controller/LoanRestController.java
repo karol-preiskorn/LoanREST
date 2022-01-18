@@ -9,7 +9,6 @@ import pl.ultimasolution.loan.model.Loans;
 import pl.ultimasolution.loan.repository.LoanRepository;
 import pl.ultimasolution.loan.tools.Tools;
 
-import javax.validation.Valid;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
