@@ -15,7 +15,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <io-rest-assured.version>5.1.1</io-rest-assured.version>
+        <io-rest-assured.version>5.2.0</io-rest-assured.version>
     </properties>
 
     <dependencies>
